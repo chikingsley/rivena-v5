@@ -63,9 +63,11 @@ export function LoginForm({
   useEffect(() => {
     const validationResult = signInSchema.safeParse({ email, password });
     if (!validationResult.success) {
-      const newErrors: any = {};
+      const newErrors: { email: string; password: string } = { email: "", password: "" };
       validationResult.error.errors.forEach((err) => {
-        newErrors[err.path[0]] = err.message;
+        if (err.path[0] === "email" || err.path[0] === "password") {
+          newErrors[err.path[0]] = err.message;
+        }
       });
       setErrors(newErrors);
       setIsValid(false);
@@ -79,7 +81,7 @@ export function LoginForm({
   const handleEmailSignIn = async () => {
     try {
       setLoading(true);
-      await signIn.email(
+      const { data, error } = await signIn.email(
         {
           email,
           password,
@@ -87,8 +89,22 @@ export function LoginForm({
           rememberMe,
         },
         {
-          onResponse: () => {
+          onResponse: (resp) => {
+            // Get user data from the response
+            if (resp.data?.user) {
+              // Update auth store directly
+              const { useAuthStore } = require('@/auth/client/auth-store');
+              useAuthStore.getState().setUser(resp.data.user);
+              useAuthStore.getState().setAuthenticated(true);
+              
+              // Trigger auth change event
+              window.dispatchEvent(new CustomEvent('auth:change', {
+                detail: { isAuthenticated: true }
+              }));
+            }
+            
             setLoading(false);
+            toast.success("Logged in successfully!");
             onSuccess?.();
           },
           onError: (ctx) => {
@@ -99,7 +115,7 @@ export function LoginForm({
           },
         }
       );
-    } catch (error) {
+    } catch {
       setLoading(false);
       toast.error("An unexpected error occurred");
       onError?.({ message: "An unexpected error occurred" });
@@ -110,14 +126,17 @@ export function LoginForm({
   const handleSocialSignIn = async (provider: SocialProvider) => {
     try {
       setLoading(true);
+      // Use the root path as callback URL, as the actual OAuth redirect
+      // handling happens on the server side
       await signIn.social({
         provider,
-        callbackURL: callbackUrl,
+        callbackURL: "/", // The OAuth flow is handled by the server
       });
     } catch (error) {
+      console.error(`Social login error:`, error);
       setLoading(false);
-      toast.error(`Failed to sign in with ${provider}`);
-      onError?.({ message: `Failed to sign in with ${provider}` });
+      toast.error("Failed to authenticate");
+      onError?.({ message: "Failed to authenticate" });
     }
   };
 
@@ -135,8 +154,10 @@ export function LoginForm({
             e.preventDefault();
             if (isValid) handleEmailSignIn();
           }}>
+          {/* Social Login */}
             <div className="grid gap-6">
               <div className="flex flex-col gap-4">
+                {/* Apple Login */}
                 <Button 
                   variant="outline" 
                   className="w-full"
@@ -152,6 +173,7 @@ export function LoginForm({
                   </svg>
                   Login with Apple
                 </Button>
+                {/* Google Login */}
                 <Button 
                   variant="outline" 
                   className="w-full"
@@ -168,6 +190,7 @@ export function LoginForm({
                   Login with Google
                 </Button>
                 <div className="flex gap-2">
+                  {/* Github Login */}
                   <Button 
                     variant="outline" 
                     className="flex-1"
@@ -179,6 +202,7 @@ export function LoginForm({
                       <path d="M12 0a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.4-4-1.4-.5-1.4-1.3-1.8-1.3-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2 0-.4-.5-1.6.2-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17 1.7 18 2 18 2c.7 1.6.2 2.8.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 0z" fill="currentColor"/>
                     </svg>
                   </Button>
+                  {/* Facebook Login */}
                   <Button 
                     variant="outline" 
                     className="flex-1"
@@ -190,6 +214,7 @@ export function LoginForm({
                       <path fill="currentColor" d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-.5 9-4.76 9-9.95" />
                     </svg>
                   </Button>
+                  {/* Twitter Login */}
                   <Button 
                     variant="outline" 
                     className="flex-1"
@@ -201,6 +226,7 @@ export function LoginForm({
                       <path fill="currentColor" d="M22.46 6c-.77.35-1.6.58-2.46.69.88-.53 1.56-1.37 1.88-2.38-.83.5-1.75.85-2.72 1.05C18.37 4.5 17.26 4 16 4c-2.35 0-4.27 1.92-4.27 4.29 0 .34.04.67.11.98C8.28 9.09 5.11 7.38 3 4.79c-.37.63-.58 1.37-.58 2.15 0 1.49.75 2.81 1.91 3.56-.71 0-1.37-.2-1.95-.5v.03c0 2.08 1.48 3.82 3.44 4.21a4.22 4.22 0 0 1-1.93.07 4.28 4.28 0 0 0 4 2.98 8.521 8.521 0 0 1-5.33 1.84c-.34 0-.68-.02-1.02-.06C3.44 20.29 5.7 21 8.12 21 16 21 20.33 14.46 20.33 8.79c0-.19 0-.37-.01-.56.84-.6 1.56-1.36 2.14-2.23z" />
                     </svg>
                   </Button>
+                  {/* Discord Login */}
                   <Button 
                     variant="outline" 
                     className="flex-1"
@@ -230,9 +256,9 @@ export function LoginForm({
                     value={email}
                     onChange={(e) => {
                       setEmail(e.target.value);
-                      setTouched((prev) => ({ ...prev, email: true }));
                     }}
-                    aria-invalid={!!errors.email}
+                    onBlur={() => setTouched(prev => ({ ...prev, email: true }))}
+                    aria-invalid={touched.email && !!errors.email}
                     aria-describedby={errors.email ? "email-error" : undefined}
                   />
                   {touched.email && errors.email && (
@@ -243,7 +269,9 @@ export function LoginForm({
                 </div>
                 <div className="grid gap-2">
                   <div className="flex items-center">
+                    {/* Password Label */}  
                     <Label htmlFor="password">Password</Label>
+                    {/* Forgot Password Link */}
                     <a
                       href="/forgot-password"
                       className="ml-auto text-sm underline-offset-4 hover:underline"
@@ -258,9 +286,9 @@ export function LoginForm({
                     value={password}
                     onChange={(e) => {
                       setPassword(e.target.value);
-                      setTouched((prev) => ({ ...prev, password: true }));
                     }}
-                    aria-invalid={!!errors.password}
+                    onBlur={() => setTouched(prev => ({ ...prev, password: true }))}
+                    aria-invalid={touched.password && !!errors.password}
                     aria-describedby={errors.password ? "password-error" : undefined}
                   />
                   {touched.password && errors.password && (
@@ -284,6 +312,7 @@ export function LoginForm({
                     Remember me
                   </label>
                 </div>
+                {/* Login Button */}
                 <Button 
                   type="submit" 
                   className="w-full"

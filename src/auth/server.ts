@@ -37,14 +37,22 @@ const betterAuth = new Elysia({ name: "better-auth" })
     },
   });
 
+// Log environment variables for debugging
+console.log('Server environment variables:', {
+  BETTER_AUTH_URL: import.meta.env.BETTER_AUTH_URL,
+  SERVER_AUTH_URL: import.meta.env.SERVER_AUTH_URL,
+  VITE_BETTER_AUTH_URL: import.meta.env.VITE_BETTER_AUTH_URL,
+  ELYSIA_SERVER_AUTH_URL: import.meta.env.ELYSIA_SERVER_AUTH_URL
+});
+
 // Create the main app
 const app = new Elysia()
   .use(cors({
-    origin: ["http://localhost:5173", "http://localhost:3000"], // Allow both Vite and Elysia servers
+    origin: "http://localhost:5173", // Only the frontend origin - exact match with docs
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
-    exposeHeaders: ["Set-Cookie"], // Important for auth cookies
+    exposeHeaders: ["Set-Cookie"] // Important for auth cookies
   }))
   .use(betterAuth)
   // Custom auth endpoints

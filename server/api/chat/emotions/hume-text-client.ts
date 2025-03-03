@@ -14,9 +14,17 @@ interface HumeResponse {
   };
 }
 
+const HUME_API_KEY = import.meta.env.VITE_HUME_API_KEY;
+
+if (!HUME_API_KEY) {
+  console.error('VITE_HUME_API_KEY is not defined in your environment variables');
+}
+
 const client = new HumeClient({
-  apiKey: import.meta.env.VITE_HUME_API_KEY
+  apiKey: HUME_API_KEY || 'dummy-key-for-type-checking'
 });
+
+
 
 export async function analyzeEmotions(text: string) {
   try {

@@ -32,17 +32,17 @@ type SocialProvider =
 // Sign-up validation schema
 const signUpSchema = z
   .object({
-    firstName: z.string().min(1, "First name is required"),
-    lastName: z.string().min(1, "Last name is required"),
+    // firstName: z.string().min(1, "First name is required"),
+    // lastName: z.string().min(1, "Last name is required"),
     email: z.string().email("Invalid email address"),
     password: z.string().min(6, "Password must be at least 6 characters"),
     passwordConfirmation: z.string().min(6, "Password must be at least 6 characters"),
-    image: z
-      .instanceof(File)
-      .optional()
-      .refine((file) => !file || file.type.startsWith("image/"), {
-        message: "Invalid file type. Only images are allowed.",
-      }),
+    // image: z
+    //   .instanceof(File)
+    //   .optional()
+    //   .refine((file) => !file || file.type.startsWith("image/"), {
+    //     message: "Invalid file type. Only images are allowed.",
+    //   }),
     acceptTerms: z.boolean().refine((val) => val === true, {
       message: "You must accept the terms and conditions",
     }),
@@ -131,7 +131,7 @@ export function RegisterForm({
     try {
       setLoading(true);
       
-      await signUp.email({
+      const { data, error } = await signUp.email({
         id: crypto.randomUUID(),
         email: formData.email,
         password: formData.password,
@@ -139,7 +139,23 @@ export function RegisterForm({
         image: formData.image ? await convertImageToBase64(formData.image) : "",
         callbackURL: callbackUrl,
         fetchOptions: {
-          onSuccess: () => {
+          onSuccess: (resp) => {
+            // Update auth store with user data
+            if (resp.data?.user) {
+              // Update auth store directly
+              const { useAuthStore } = require('@/auth/client/auth-store');
+              useAuthStore.getState().setUser(resp.data.user);
+              useAuthStore.getState().setAuthenticated(true);
+              
+              // Trigger auth change event
+              window.dispatchEvent(new CustomEvent('auth:change', {
+                detail: { isAuthenticated: true }
+              }));
+              
+              // Log successful registration & login
+              console.log('Registration successful, auth state updated:', resp.data.user);
+            }
+            
             setLoading(false);
             toast.success("Account created successfully!");
             onSuccess?.();
@@ -163,9 +179,10 @@ export function RegisterForm({
   const handleSocialSignUp = async (provider: SocialProvider) => {
     try {
       setLoading(true);
+      const frontendURL = import.meta.env.VITE_FRONTEND_URL || "http://localhost:5173";
       await signIn.social({
         provider,
-        callbackURL: callbackUrl,
+        callbackURL: `${frontendURL}/auth/callback/${provider}`,
       });
     } catch {
       setLoading(false);
@@ -190,7 +207,8 @@ export function RegisterForm({
           }}>
             <div className="grid gap-6">
               <div className="grid grid-cols-2 gap-4">
-                <div className="grid gap-2">
+                {/* First name */}
+                {/* <div className="grid gap-2">
                   <Label htmlFor="firstName">First name</Label>
                   <Input
                     id="firstName"
@@ -205,8 +223,9 @@ export function RegisterForm({
                       {errors.firstName}
                     </p>
                   )}
-                </div>
-                <div className="grid gap-2">
+                </div> */}
+                {/* Last name */}
+                {/* <div className="grid gap-2">
                   <Label htmlFor="lastName">Last name</Label>
                   <Input
                     id="lastName"
@@ -221,9 +240,9 @@ export function RegisterForm({
                       {errors.lastName}
                     </p>
                   )}
-                </div>
+                </div> */}
               </div>
-              
+              {/* Email */}
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -242,6 +261,7 @@ export function RegisterForm({
                 )}
               </div>
               
+              {/* Password */}
               <div className="grid gap-2">
                 <Label htmlFor="password">Password</Label>
                 <Input
@@ -258,8 +278,8 @@ export function RegisterForm({
                   </p>
                 )}
               </div>
-              
-              <div className="grid gap-2">
+              {/* Confirm Password */}
+              {/* <div className="grid gap-2">
                 <Label htmlFor="passwordConfirmation">Confirm Password</Label>
                 <Input
                   id="passwordConfirmation"
@@ -274,7 +294,7 @@ export function RegisterForm({
                     {errors.passwordConfirmation}
                   </p>
                 )}
-              </div>
+              </div> */}
 
               {/* Profile Image */}
               {/* <div className="grid gap-2">
