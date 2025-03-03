@@ -1,15 +1,15 @@
-// src/components/chat-window/Chat.tsx
-import Messages from "./Messages";
-import BottomControls from "../controls/BottomControls";
+// src/voice/chat/window/Chat.tsx
+import Messages from "@/voice/chat/window/Messages";
+import BottomControls from "@/voice/chat/controls/BottomControls";
 import { ComponentRef, useEffect, useRef } from "react";
-import { Message, useSessionStore } from "../../hooks/useSessionStore";
+import { Message, useSessionStore } from "@/hooks/useSessionStore";
 
 interface ClientComponentProps {
   sessionId: string | null;
   onNewSession?: () => void;
 }
 
-function adaptMessages(messages: import('../../hooks/useSessionStore').Message[]): Message[] {
+function adaptMessages(messages: Message[]): Message[] {
   return messages.map(msg => ({
     id: 'id' in msg ? msg.id : `${Date.now()}-${Math.random()}`,
     type: msg.type === 'assistant_message' || msg.type === 'user_message' 

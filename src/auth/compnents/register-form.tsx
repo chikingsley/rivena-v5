@@ -1,20 +1,20 @@
 import { useState, useEffect } from "react";
 import type { ChangeEvent } from "react";
 import { z } from "zod";
-import { cn } from "../../lib/utils";
-import { Button } from "../../components/ui/button";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "../../components/ui/card";
-import { Input } from "../../components/ui/input";
-import { Label } from "../../components/ui/label";
-import { Checkbox } from "../../components/ui/checkbox";
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2 } from "lucide-react";
-import { signIn, signUp } from "../client/auth-client";
+import { signIn, signUp } from "@/auth/client/auth-client";
 import { toast } from "sonner";
 
 // Social provider types

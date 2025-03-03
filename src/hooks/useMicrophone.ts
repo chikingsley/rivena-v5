@@ -6,9 +6,9 @@ import type { MeydaFeaturesObject } from 'meyda';
 import { useCallback, useEffect, useRef } from 'react';
 import type { RefObject } from 'react';
 
-import { generateEmptyFft } from '../hume-utils/generateEmptyFTT';
-import { useFFTStore } from '../hooks/useFFTStore';
-import { useMuteStore } from '../hooks/useMuteStore';
+import { generateEmptyFft } from '@/lib/hume-utils/generateEmptyFTT';
+import { useFFTStore } from '@/hooks/useFFTStore';
+import { useMuteStore } from '@/hooks/useMuteStore';
 
 export type MicrophoneProps = {
   streamRef: RefObject<MediaStream | null>;

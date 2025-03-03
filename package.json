@@ -7,7 +7,7 @@
     "dev": "vite",
     "dev-vite": "vite",
     "server": "bun run src/auth/server.ts",
-    "dev:all": "concurrently \"bun run server\" \"bun run dev\"",
+    "start": "concurrently \"bun run server\" \"bun run dev\"",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -28,6 +28,7 @@
     "@tailwindcss/vite": "^4.0.9",
     "@types/bun": "^1.2.4",
     "@types/node": "^22.13.8",
+    "@types/react-virtualized": "^9.22.2",
     "ai": "^4.1.47",
     "better-auth": "^1.2.1",
     "class-variance-authority": "^0.7.1",

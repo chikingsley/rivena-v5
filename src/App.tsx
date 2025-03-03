@@ -1,23 +1,23 @@
 import "./index.css";
 import { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
-import { LoginForm } from "./auth/compnents/login-form";
-import { RegisterForm } from "./auth/compnents/register-form";
-import { AuthProvider } from "./auth/compnents/AuthProvider";
-import Home from "./pages/Home";
-import ChatLayout from "./components/layouts/chat-layout";
-import { NavHeader } from "./components/nav/nav-header";
+import { LoginForm } from "@/auth/compnents/login-form";
+import { RegisterForm } from "@/auth/compnents/register-form";
+import { AuthProvider } from "@/auth/compnents/AuthProvider";
+import Home from "@/components/pages/Home";
+import ChatLayout from "@/components/layouts/chat-layout";
+import { NavHeader } from "@/components/nav/nav-header";
 import { 
   Dialog, 
   DialogContent,
   DialogTitle,
   DialogDescription,
   DialogHeader
-} from "./components/ui/dialog";
-import { useAuthStore } from "./auth/client/auth-store";
-import { authService } from "./auth/client/auth-service";
-import { AuthInitializer } from "./auth/client/auth-initializer";
-import Hume from "./pages/Hume";
+} from "@/components/ui/dialog";
+import { useAuthStore } from "@/auth/client/auth-store";
+import { authService } from "@/auth/client/auth-service";
+import { AuthInitializer } from "@/auth/client/auth-initializer";
+import Hume from "@/components/pages/Hume";
 
 // Layout for public pages that includes the nav header
 function PublicLayout({ openAuthModal }: { openAuthModal: (mode: 'login' | 'register') => void }) {

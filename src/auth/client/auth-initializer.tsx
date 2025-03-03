@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
-import { authService } from './auth-service';
-import { useAuthStore } from './auth-store';
+import { authService } from '@/auth/client/auth-service';
+import { useAuthStore } from '@/auth/client/auth-store';
 
 /**
  * Component that initializes authentication from cached JWT

@@ -1,7 +1,7 @@
 // src/hooks/useMessageScroll.ts
 import { useEffect, useRef } from 'react';
 import type { ComponentRef } from 'react';
-import type Messages from '../chat/window/Messages';
+import type Messages from '@/voice/chat/window/Messages';
 
 export function useMessageScroll(
   scrollToMessageId: string | undefined,

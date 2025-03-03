@@ -1,6 +1,6 @@
 import { signIn, signUp, signOut, useSession } from './auth-client';
 import { jwtDecode } from 'jwt-decode';
-import { useAuthStore } from './auth-store';
+import { useAuthStore } from '@/auth/client/auth-store';
 
 /**
  * Type definition for decoded JWT payload

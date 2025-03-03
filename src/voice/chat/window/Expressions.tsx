@@ -1,7 +1,9 @@
-import { Hume } from "hume";
-import { expressionColors, isExpressionColor, expressionLabels } from "../../../types/expressions";
-import { motion } from "framer-motion";
+// src/voice/chat/window/Expressions.tsx
 import * as R from "remeda";
+
+import { Hume } from "hume";
+import { expressionColors, isExpressionColor, expressionLabels } from "@/types/expressions";
+import { motion } from "framer-motion";
 
 export default function Expressions({
   values,

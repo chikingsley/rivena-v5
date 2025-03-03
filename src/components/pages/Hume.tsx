@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { getHumeAccessToken } from "../voice/hume-utils/getHumeAccessToken";
-import ClientComponent from "../voice/chat/window/Chat";
+import { getHumeAccessToken } from "../../lib/hume-utils/getHumeAccessToken";
+import ClientComponent from "../../voice/chat/window/Chat";
 
 // Dynamic import for the client component to avoid SSR issues
 const Chat = ClientComponent;

@@ -1,4 +1,4 @@
-import { auth } from "../auth";
+import { auth } from "@/auth/auth";
 
 /**
  * Auth handler for Bun server routes

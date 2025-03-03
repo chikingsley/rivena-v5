@@ -1,3 +1,4 @@
+// src/voice/chat/controls/ChatInputForm.tsx
 import React, { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { MagnetizeButton } from "@/voice/chat/controls/MagnetizeButton";

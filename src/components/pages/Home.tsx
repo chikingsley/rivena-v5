@@ -1,8 +1,8 @@
-import { Card, CardContent } from "../components/ui/card";
-import { Button } from "../components/ui/button";
-import reactLogo from "../assets/react.svg";
-import bunLogo from "../assets/bun.svg";
-import { useSession } from "../auth/client/auth-client";
+import { Card, CardContent } from "../../components/ui/card";
+import { Button } from "../../components/ui/button";
+import reactLogo from "@/assets/react.svg";
+import bunLogo from "@/assets/bun.svg";
+import { useSession } from "../../auth/client/auth-client";
 import { useNavigate } from 'react-router-dom';
 
 interface HomeProps {

@@ -1,3 +1,4 @@
+// src/voice/chat/controls/EndCallButton.tsx
 import { memo } from "react";
 import { Button } from "@/components/ui/button";
 import { Phone } from "lucide-react";

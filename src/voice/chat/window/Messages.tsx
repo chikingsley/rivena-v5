@@ -1,6 +1,6 @@
-// src/components/chat-window/Messages.tsx
-import { cn } from "../../../lib/utils";
-import Expressions from "./Expressions";
+// src/voice/chat/window/Messages.tsx
+import { cn } from "@/lib/utils";
+import Expressions from "@/voice/chat/window/Expressions";
 import { AnimatePresence, motion } from "framer-motion";
 import { ComponentRef, forwardRef } from "react";
 import { Hume } from "hume";

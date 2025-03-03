@@ -1,7 +1,8 @@
+// src/voice/chat/controls/AudioControls.tsx
 import { memo } from "react";
-import { useFFTStore } from "@/voice/hooks/useFFTStore";
-import { MuteToggle } from "../audio/MuteToggle";
-import MicFFT from "../audio/MicFFT";
+import { useFFTStore } from "@/hooks/useFFTStore";
+import { MuteToggle } from "@/voice/chat/audio/MuteToggle";
+import MicFFT from "@/voice/chat/audio/MicFFT";
 
 export const AudioControls = memo(() => {
   const micFft = useFFTStore(state => state.micFft);

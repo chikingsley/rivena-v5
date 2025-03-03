@@ -1,6 +1,7 @@
+// src/voice/chat/controls/Controls.tsx
 import { memo } from "react";
-import { AudioControls } from "./AudioControls";
-import { EndCallButton } from "./EndCallButton";
+import { AudioControls } from "@/voice/chat/controls/AudioControls";
+import { EndCallButton } from "@/voice/chat/controls/EndCallButton";
 
 interface ControlsProps {
   onEndCall: () => void;

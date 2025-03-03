@@ -1,13 +1,13 @@
 // src/lib/hume-lib/hooks/useMessages.ts
 import type { CloseEvent } from 'hume/core';
 import { useCallback, useState } from 'react';
-import { useSessionStore } from './useSessionStore';
+import { useSessionStore } from '@/hooks/useSessionStore';
 import type {
   AssistantTranscriptMessage,
   JSONMessage,
   UserTranscriptMessage,
-} from '../../types/hume-messages';
-import { keepLastN } from '../hume-utils/keepLastN';
+} from '@/types/hume-messages';
+import { keepLastN } from '@/lib/hume-utils/keepLastN';
 
 export const useMessages = ({
   sendMessageToParent,

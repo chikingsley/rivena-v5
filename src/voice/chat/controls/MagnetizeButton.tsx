@@ -1,9 +1,10 @@
+// src/voice/chat/controls/MagnetizeButton.tsx
 import React, { useState } from "react"
-import { cn } from "../../../lib/utils";
+import { cn } from "@/lib/utils";
 import { motion, useAnimation } from "framer-motion";
 import { Magnet } from "lucide-react";
 import { useEffect } from "react";
-import { Button } from "../../../components/ui/button";
+import { Button } from "@/components/ui/button";
 
 interface MagnetizeButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     particleCount?: number;
