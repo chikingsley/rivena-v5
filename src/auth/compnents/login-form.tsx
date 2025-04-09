@@ -14,6 +14,7 @@ import { Label } from "../../components/ui/label";
 import { Checkbox } from "../../components/ui/checkbox";
 import { Loader2 } from "lucide-react";
 import { signIn } from "../client/auth-client";
+import { quickSignIn } from "../client/auth-service";
 import { toast } from "sonner";
 
 // Social provider types
@@ -81,7 +82,13 @@ export function LoginForm({
   const handleEmailSignIn = async () => {
     try {
       setLoading(true);
-      const { data, error } = await signIn.email(
+      
+      // Create optimistic UI update immediately
+      const optimisticUpdate = quickSignIn(email);
+      toast.success("Signing in...");
+      
+      // Perform the actual login
+      await signIn.email(
         {
           email,
           password,
@@ -90,17 +97,11 @@ export function LoginForm({
         },
         {
           onResponse: (resp) => {
-            // Get user data from the response
+            // Login succeeded, update with real user data
             if (resp.data?.user) {
-              // Update auth store directly
-              const { useAuthStore } = require('@/auth/client/auth-store');
-              useAuthStore.getState().setUser(resp.data.user);
-              useAuthStore.getState().setAuthenticated(true);
-              
-              // Trigger auth change event
-              window.dispatchEvent(new CustomEvent('auth:change', {
-                detail: { isAuthenticated: true }
-              }));
+              // Complete the optimistic update with real data
+              optimisticUpdate.complete(resp.data.user);
+              console.log('Login successful, updated with real user data');
             }
             
             setLoading(false);
@@ -108,6 +109,9 @@ export function LoginForm({
             onSuccess?.();
           },
           onError: (ctx) => {
+            // Login failed, revert optimistic update
+            optimisticUpdate.abort();
+            
             setLoading(false);
             const errorMessage = ctx.error.message || "Failed to sign in";
             toast.error(errorMessage);

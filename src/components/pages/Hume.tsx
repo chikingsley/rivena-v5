@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { getHumeAccessToken } from "../../lib/hume-utils/getHumeAccessToken";
 import ClientComponent from "../../voice/chat/window/Chat";
+import { VoiceProvider } from "../../voice/VoiceProvider";
 
 // Dynamic import for the client component to avoid SSR issues
 const Chat = ClientComponent;
@@ -59,12 +60,18 @@ export default function Hume() {
     );
   }
 
-  // Render the Chat component with the access token
+  // Render the Chat component with the access token wrapped in VoiceProvider
   return (
     <div className="flex flex-col h-screen">
       <h1 className="text-2xl font-bold p-4 border-b">Hume Voice Chat</h1>
       <div className="flex-1 overflow-hidden">
-        <Chat accessToken={accessToken} />
+        <VoiceProvider 
+          baseUrl="https://api.hume.ai/v0/ai/voice/stream"
+          apiKey={accessToken || ""}
+          messageHistoryLimit={100}
+        >
+          <Chat accessToken={accessToken} />
+        </VoiceProvider>
       </div>
     </div>
   );

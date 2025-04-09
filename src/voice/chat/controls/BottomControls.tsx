@@ -9,7 +9,7 @@ import { AnimatePresence, motion } from "framer-motion"
 import Controls from "@/voice/chat/controls/Controls"
 import { ChatInputForm } from "@/voice/chat/controls/ChatInputForm"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { createSession } from "react-router-dom"
+import { useMediaQuery } from "@/hooks/useMediaQuery"
 
 interface BottomControlsProps {
   sessionId?: string;
@@ -18,9 +18,11 @@ interface BottomControlsProps {
 
 const BottomControls = React.memo(({ sessionId }: BottomControlsProps) => {
   // Split state subscriptions for better performance
-  const { status, connect, disconnect, sendSessionSettings } = useVoice();
+  const { status, connect, disconnect, sendSessionSettings, sendUserInput } = useVoice();
   const [isTransitioning, setIsTransitioning] = React.useState(false)
   const [isPostCall, setIsPostCall] = React.useState(false)
+  const [isVoiceMode, setIsVoiceMode] = React.useState(true) // Default to voice mode
+  const isMobile = useMediaQuery("(max-width: 768px)")
 
   // Reset post-call state when changing sessions
   React.useEffect(() => {
@@ -32,12 +34,10 @@ const BottomControls = React.memo(({ sessionId }: BottomControlsProps) => {
   const handleStartCall = async () => {
     setIsTransitioning(true)
     try {
-      // Create a new session for this voice call
-      const newSessionId = await createSession();
-      if (newSessionId) {
-        await sendSessionSettings({ customSessionId: newSessionId })
-        await connect()
-      }
+      // Create a session ID instead of relying on react-router-dom's createSession
+      const newSessionId = `session-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+      await sendSessionSettings({ customSessionId: newSessionId })
+      await connect()
     } catch (error) {
       console.error('Connection failed:', error)
     } finally {
@@ -110,7 +110,7 @@ const BottomControls = React.memo(({ sessionId }: BottomControlsProps) => {
               ) : isVoiceMode ? (
                 <ChatInputForm onStartCall={handleStartCall} mode="voice" isLoading={isTransitioning} />
               ) : (
-                <ChatInputForm onSubmit={handleTextSubmit} mode="text" />
+                <ChatInputForm onSubmit={(text) => sendUserInput(text)} mode="text" />
               )}
             </motion.div>
           </AnimatePresence>

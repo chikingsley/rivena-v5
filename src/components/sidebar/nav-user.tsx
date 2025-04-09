@@ -201,28 +201,20 @@ export function SignInButton() {
 
 // NavUserWithAuth component that integrates with Better Auth
 export function NavUserWithAuth({ onLogout }: { onLogout?: () => void }) {
-  // Get current session state
-  const sessionAtom = useSession;
-  const [sessionState, setSessionState] = useState({
-    data: sessionAtom.get()?.data,
-    isPending: sessionAtom.get()?.isPending || false,
-    error: sessionAtom.get()?.error
-  });
+  // Use the useSession hook correctly - it returns an object with session data
+  const { 
+    data, 
+    isPending, 
+    error 
+  } = useSession();
   
-  // Subscribe to session state changes
-  useEffect(() => {
-    const unsubscribe = sessionAtom.subscribe((newValue) => {
-      setSessionState({
-        data: newValue?.data,
-        isPending: newValue?.isPending || false,
-        error: newValue?.error
-      });
-    });
-    
-    return () => {
-      unsubscribe();
-    };
-  }, []);
+  // Create a single state object with session information
+  const sessionState = {
+    data,
+    isPending: isPending || false,
+    error
+  };
+  
   
   if (sessionState.isPending) {
     return (

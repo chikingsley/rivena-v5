@@ -3,6 +3,7 @@ import type { ChangeEvent } from "react";
 import { z } from "zod";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { quickSignIn } from "../client/auth-service";
 import {
   Card,
   CardContent,
@@ -131,29 +132,27 @@ export function RegisterForm({
     try {
       setLoading(true);
       
+      // Create optimistic UI update immediately with the user's name
+      const fullName = `${formData.firstName} ${formData.lastName}`;
+      const optimisticUpdate = quickSignIn(formData.email, fullName);
+      toast.success("Creating your account...");
+      
       const { data, error } = await signUp.email({
         id: crypto.randomUUID(),
         email: formData.email,
         password: formData.password,
-        name: `${formData.firstName} ${formData.lastName}`,
+        name: fullName,
         image: formData.image ? await convertImageToBase64(formData.image) : "",
         callbackURL: callbackUrl,
         fetchOptions: {
           onSuccess: (resp) => {
             // Update auth store with user data
             if (resp.data?.user) {
-              // Update auth store directly
-              const { useAuthStore } = require('@/auth/client/auth-store');
-              useAuthStore.getState().setUser(resp.data.user);
-              useAuthStore.getState().setAuthenticated(true);
-              
-              // Trigger auth change event
-              window.dispatchEvent(new CustomEvent('auth:change', {
-                detail: { isAuthenticated: true }
-              }));
+              // Complete the optimistic update with real data
+              optimisticUpdate.complete(resp.data.user);
               
               // Log successful registration & login
-              console.log('Registration successful, auth state updated:', resp.data.user);
+              console.log('Registration successful, auth state updated with real data:', resp.data.user);
             }
             
             setLoading(false);
@@ -161,6 +160,9 @@ export function RegisterForm({
             onSuccess?.();
           },
           onError: (ctx) => {
+            // Registration failed, revert optimistic update
+            optimisticUpdate.abort();
+            
             setLoading(false);
             const errorMessage = ctx.error.message || "Failed to create account";
             toast.error(errorMessage);

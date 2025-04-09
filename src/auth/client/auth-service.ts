@@ -1,6 +1,6 @@
-import { signIn, signUp, signOut, useSession } from './auth-client';
+import { signIn, signOut, signUp, useSession } from './auth-client';
 import { jwtDecode } from 'jwt-decode';
-import { useAuthStore } from '@/auth/client/auth-store';
+import { useAuthStore, User } from '@/auth/client/auth-store';
 
 /**
  * Type definition for decoded JWT payload
@@ -220,6 +220,50 @@ export const authService = new AuthService();
 export { signIn, signUp, signOut, useSession };
 
 /**
+ * Quick sign in function that updates UI state immediately before waiting for server response
+ * 
+ * @param email User's email
+ * @param user Preliminary user object with basic info
+ * @returns Object with methods to complete or abort the optimistic update
+ */
+export const quickSignIn = (email: string, name?: string) => {
+  // Create a temporary user object with the email and name
+  const tempUser: User = {
+    id: 'temp-' + Date.now(),
+    email,
+    name: name || email.split('@')[0], // Use part of email as name if not provided
+  };
+
+  // Update Zustand store immediately for responsive UI
+  useAuthStore.getState().setUser(tempUser);
+  useAuthStore.getState().setAuthenticated(true);
+  
+  // Dispatch auth:change event
+  window.dispatchEvent(new CustomEvent('auth:change', { 
+    detail: { isAuthenticated: true } 
+  }));
+
+  console.log('Optimistic UI update for sign in:', tempUser);
+  
+  // Return methods to handle the final update or revert
+  return {
+    // Call this when the real user data is available
+    complete: (userData: User) => {
+      useAuthStore.getState().setUser(userData);
+      console.log('Updated optimistic user with real data:', userData);
+    },
+    // Call this if the login fails
+    abort: () => {
+      useAuthStore.getState().logout();
+      window.dispatchEvent(new CustomEvent('auth:change', { 
+        detail: { isAuthenticated: false } 
+      }));
+      console.log('Aborted optimistic login update');
+    }
+  };
+};
+
+/**
  * Custom wrapper for signOut that handles cleanup
  */
 export const secureSignOut = async () => {
@@ -235,33 +279,14 @@ export const secureSignOut = async () => {
       detail: { isAuthenticated: false } 
     }));
     
-    // First try our custom logout endpoint that we know works
-    try {
-      const response = await fetch('/api/custom-auth/logout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-      });
-      
-      if (response.ok) {
-        console.log('Successfully logged out via custom endpoint');
-        return true;
-      }
-    } catch (customLogoutError) {
-      console.warn('Custom logout failed, falling back to Better Auth signOut:', customLogoutError);
-    }
-    
-    // Fall back to Better Auth's signOut if custom endpoint fails
+    // Use Better Auth's signOut
     try {
       await signOut();
       console.log('Successfully logged out via Better Auth signOut');
     } catch (signOutError) {
       console.warn('Better Auth signOut failed, but local state has been cleared:', signOutError);
-      // We still return true because we've already cleared local state
-    }
-    
+    }  
+    // We still return true because we've already cleared local state
     return true;
   } catch (error) {
     console.error('Error during secure sign out:', error);
@@ -282,17 +307,17 @@ export const debugSignOut = async () => {
     console.log('1. Attempting Better Auth signOut()...');
     try {
       const result = await signOut();
-      console.log('   ✓ signOut succeeded:', result);
+      console.log('   signOut succeeded:', result);
     } catch (error) {
-      console.log('   ✗ signOut failed:', error);
+      console.log('   signOut failed:', error);
       
       // If the first attempt fails, let's try with explicit options
       console.log('2. Attempting signOut with explicit options...');
       try {
         const result = await signOut({});
-        console.log('   ✓ signOut with empty options succeeded:', result);
+        console.log('   signOut with empty options succeeded:', result);
       } catch (error) {
-        console.log('   ✗ signOut with empty options failed:', error);
+        console.log('   signOut with empty options failed:', error);
       }
     }
     
@@ -317,7 +342,7 @@ export const debugSignOut = async () => {
         console.log('   Could not parse response as JSON:', e);
       }
     } catch (error) {
-      console.log('   ✗ Direct fetch failed:', error);
+      console.log('   Direct fetch failed:', error);
     }
     
     // Finally, try the custom logout endpoint
@@ -339,7 +364,7 @@ export const debugSignOut = async () => {
         console.log('   Could not parse response as JSON:', e);
       }
     } catch (error) {
-      console.log('   ✗ Custom logout failed:', error);
+      console.log('   Custom logout failed:', error);
     }
     
     // For now, still do our local cleanup regardless of API results
